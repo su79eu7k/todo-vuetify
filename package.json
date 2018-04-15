@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "@vue/cli-plugin-pwa": "^3.0.0-beta.6",
+    "compression-webpack-plugin": "^1.1.11",
     "moment": "^2.22.0",
-    "register-service-worker": "^1.0.0",
     "vue": "^2.5.13",
     "vuetify": "^1.0.11"
   },
