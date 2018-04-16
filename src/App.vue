@@ -31,11 +31,12 @@
               <v-flex d-flex justify-center v-if="addDue" class="pb-3">
                 <v-spacer></v-spacer>
                 <v-flex class="px-2">
-                  <v-menu ref="pickerDate"
+                  <v-dialog ref="pickerDate"
                           lazy
                           :close-on-content-click="false"
                           v-model="pickerDate"
                           transition="scale-transition"
+                          width="290px"
                           :nudge-bottom="60"
                           :return-value.sync="pickedDate"
                   >
@@ -52,14 +53,15 @@
                       <v-btn flat small color="primary" @click="pickerDate = false">Cancel</v-btn>
                       <v-btn flat small color="primary" @click="$refs.pickerDate.save(pickedDate)">OK</v-btn>
                     </v-date-picker>
-                  </v-menu>
+                  </v-dialog>
                 </v-flex>
                 <v-flex class="pr-2">
-                  <v-menu ref="pickerTime"
+                  <v-dialog ref="pickerTime"
                           lazy
                           :close-on-content-click="false"
                           v-model="pickerTime"
                           transition="scale-transition"
+                          width="290px"
                           :nudge-bottom="60"
                           :return-value.sync="pickedTime"
                   >
@@ -76,7 +78,7 @@
                       <v-btn flat small color="primary" @click="pickerTime = false">Cancel</v-btn>
                       <v-btn flat small color="primary" @click="$refs.pickerTime.save(pickedTime)">OK</v-btn>
                     </v-time-picker>
-                  </v-menu>
+                  </v-dialog>
                 </v-flex>
               </v-flex>
             </transition>
