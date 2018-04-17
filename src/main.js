@@ -23,6 +23,21 @@ function urlB64ToUint8Array(base64String) {
   return outputArray;
 }
 
+function updateSubscriptionOnServer(subscription) {
+  // TODO: Send subscription to application server
+
+  const subscriptionJson = document.querySelector('.js-subscription-json');
+  const subscriptionDetails =
+    document.querySelector('.js-subscription-details');
+
+  if (subscription) {
+    subscriptionJson.textContent = JSON.stringify(subscription);
+    subscriptionDetails.classList.remove('is-invisible');
+  } else {
+    subscriptionDetails.classList.add('is-invisible');
+  }
+}
+
 
 if ('serviceWorker' in navigator && 'PushManager' in window) {
   console.log('Service Worker and Push is supported');
@@ -39,15 +54,8 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
 
           if (isSubscribed) {
             console.log('Already subscribed.');
+            console.log(JSON.stringify(subscription));
 
-            // TODO This simple test must be installed in the app.
-            const title = 'Push Codelab';
-            const options = {
-              body: 'Yay it works.',
-              icon: 'images/icon.png',
-              badge: 'images/badge.png'
-            };
-            swRegistration.showNotification(title, options);
           } else {
             const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
             swRegistration.pushManager.subscribe({
