@@ -32,13 +32,13 @@
                 <v-spacer></v-spacer>
                 <v-flex class="px-2">
                   <v-dialog ref="pickerDate"
-                          lazy
-                          :close-on-content-click="false"
-                          v-model="pickerDate"
-                          transition="scale-transition"
-                          width="290px"
-                          :nudge-bottom="60"
-                          :return-value.sync="pickedDate"
+                            lazy
+                            :close-on-content-click="false"
+                            v-model="pickerDate"
+                            transition="scale-transition"
+                            width="290px"
+                            :nudge-bottom="60"
+                            :return-value.sync="pickedDate"
                   >
                     <v-text-field
                             slot="activator"
@@ -57,13 +57,13 @@
                 </v-flex>
                 <v-flex class="pr-2">
                   <v-dialog ref="pickerTime"
-                          lazy
-                          :close-on-content-click="false"
-                          v-model="pickerTime"
-                          transition="scale-transition"
-                          width="290px"
-                          :nudge-bottom="60"
-                          :return-value.sync="pickedTime"
+                            lazy
+                            :close-on-content-click="false"
+                            v-model="pickerTime"
+                            transition="scale-transition"
+                            width="290px"
+                            :nudge-bottom="60"
+                            :return-value.sync="pickedTime"
                   >
                     <v-text-field
                             slot="activator"
@@ -132,7 +132,7 @@
                       </v-list-tile-avatar>
 
                       <v-list-tile-content :class="{ 'closed-issue': item.finished }">
-                        <v-list-tile-title>{{ item.title }}<span v-if="item.timeRemaining"> {{ item.timeRemaining }}</span></v-list-tile-title>
+                        <v-list-tile-title>{{ item.title }}<span v-if="item.dueRemaining"> {{ item.dueRemaining }}</span></v-list-tile-title>
                         <v-list-tile-sub-title v-if="item.detail">{{ item.detail }}</v-list-tile-sub-title>
                       </v-list-tile-content>
 
@@ -144,7 +144,7 @@
                           <v-dialog persistent v-model="item.dialog" max-width="500px">
                             <v-card>
                               <v-card-title class="title">
-                                Task {{ item.timeRemaining }}
+                                Task {{ item.dueRemaining }}
                               </v-card-title>
 
                               <v-card-text>
@@ -230,11 +230,12 @@
 <script>
   import moment from 'moment'
 
-
   export default {
     name: "app",
     data () {
       return {
+        subscription: null,
+
         addDue: false,
         addDetail: false,
         pickerDate: false,
@@ -254,8 +255,7 @@
         alertNumberMetric: false,
         alertDateTime: false,
 
-        list: [
-        ],
+        list: [],
 
         notificationMetrics: [{
           text: 'minute(s)',
@@ -275,6 +275,9 @@
           }],
       }
     },
+    created () {
+      this.$eventHub.$on('subscription', this.subscriptionCheck)
+    },
     computed: {
       pickedDue: function () {
         if (this.pickedDate && this.pickedTime) {
@@ -291,10 +294,12 @@
       if (localStorage.getItem('vue-app-todo-F9DM348E')) this.list = JSON.parse(localStorage.getItem('vue-app-todo-F9DM348E'));
       const msg = 'You have ' + this.list.length + ' item(s) to do!';
 
-      this.checkTimeRemaining();
+      this.checkDueRemaining();
+      this.checkNotificationRemaining();
 
       this.interval = setInterval(function() {
-        this.checkTimeRemaining()
+        this.checkDueRemaining();
+        this.checkNotificationRemaining();
       }.bind(this), 3e3)
     },
     methods: {
@@ -366,7 +371,7 @@
         if (!item.notifications) { item.notifications = [] }
 
         if (this.pickedNotificationNumber && this.pickedNotificationMetric) {
-          item.notifications.push({notificationNumber: this.pickedNotificationNumber,  notificationMetric: this.pickedNotificationMetric});
+          item.notifications.push({notificationNumber: this.pickedNotificationNumber,  notificationMetric: this.pickedNotificationMetric, notified: false});
 
           this.pickedNotificationNumber = null;
           this.pickedNotificationMetric = null;
@@ -403,11 +408,32 @@
       fromNow: function (unix) {
         return moment(unix*1e3).fromNow()
       },
-      checkTimeRemaining: function () {
+      checkDueRemaining: function () {
         if (this.list) {
           for (let i = 0; i < this.list.length; i++) {
             if (this.list[i].pickedDue) {
-              this.list[i].timeRemaining = moment(this.list[i].pickedDue * 1e3).fromNow()
+              this.list[i].dueRemaining = moment(this.list[i].pickedDue * 1e3).fromNow()
+            }
+          }
+        }
+      },
+      subscriptionCheck (subscriptionInfo) {
+        this.subscription = subscriptionInfo
+      },
+      checkNotificationRemaining: function () {
+        if (this.list) {
+          for (let i = 0; i < this.list.length; i++) {
+            if (this.list[i].notifications) {
+              for (let j = 0; j < this.list[i].notifications.length; j++) {
+                let timeRemaining = (this.list[i].pickedDue - (this.list[i].notifications[j].notificationNumber * this.list[i].notifications[j].notificationMetric)) * 1e3 - new Date();
+
+                if (timeRemaining <= 10e3 && !this.list[i].notifications[j].notified) {
+                  this.$http.post('/push', {body: JSON.stringify(this.subscription)})
+                    .then((res) => {
+                      if (res.data === 'OK') { this.list[i].notifications[j].notified = true }
+                    })
+                }
+              }
             }
           }
         }

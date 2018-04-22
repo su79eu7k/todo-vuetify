@@ -1,5 +1,7 @@
-from flask import Flask
+from flask import Flask, request
 from flask_compress import Compress
+
+from pywebpush import webpush
 
 
 class CustomFlask(Flask):
@@ -23,6 +25,23 @@ Compress().init_app(app)
 @app.route('/')
 def index():
     return app.send_static_file('index.html')
+
+
+@app.route('/push', methods=['POST'])
+def push():
+    if request.method == 'POST':
+        print(request.form)
+        print(request.data)
+
+        return "OK"
+        # subscription_info =
+        # data = 'from flask backend'
+        #
+        # webpush(subscription_info,
+        #         data,
+        #         vapid_private_key="w8wIyPTthxNiBjoXhGiIui968J7ZQKjxwSmRqE_YgZk")
+        #
+        # return app.send_static_file('index.html')
 
 
 if __name__ == '__main__':

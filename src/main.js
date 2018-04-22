@@ -5,8 +5,14 @@ import 'vuetify/dist/vuetify.min.css'
 
 import App from './App.vue'
 
+import axios from 'axios'
 
-const applicationServerPublicKey = 'PUBLIC KEY HERE'
+
+Vue.prototype.$http = axios;
+Vue.prototype.$eventHub = new Vue();
+
+const applicationServerPublicKey = 'PUBLIC KEY HERE';
+
 
 function urlB64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -25,27 +31,13 @@ function urlB64ToUint8Array(base64String) {
 
 function updateSubscriptionOnServer(subscription) {
   // TODO: Send subscription to application server
-
-  const subscriptionJson = document.querySelector('.js-subscription-json');
-  const subscriptionDetails =
-    document.querySelector('.js-subscription-details');
-
-  if (subscription) {
-    subscriptionJson.textContent = JSON.stringify(subscription);
-    subscriptionDetails.classList.remove('is-invisible');
-  } else {
-    subscriptionDetails.classList.add('is-invisible');
-  }
+  console.log(subscription)
 }
 
 
 if ('serviceWorker' in navigator && 'PushManager' in window) {
-  console.log('Service Worker and Push is supported');
-
   navigator.serviceWorker.register('/service-worker.js')
     .then(function(swReg) {
-      console.log('Service Worker is registered', swReg);
-
       let swRegistration = swReg;
 
       swRegistration.pushManager.getSubscription()
@@ -56,6 +48,7 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
             console.log('Already subscribed.');
             console.log(JSON.stringify(subscription));
 
+            Vue.prototype.$eventHub.$emit('subscription', subscription)
           } else {
             const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
             swRegistration.pushManager.subscribe({
@@ -65,25 +58,26 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
               .then(function(subscription) {
                 console.log('Just subscribed:', subscription);
 
+                Vue.prototype.$eventHub.$emit('subscription', subscription);
+
                 isSubscribed = true;
               })
               .catch(function(err) {
-                console.log('Failed: ', err);
+                console.log('Subscription failed: ', err);
               });
           }
         })
         .catch(function(error) {
-          console.error('Service Worker Error', error);
+          console.error('Service Worker Error.', error);
         });
     })
 } else {
-  console.warn('Push messaging is not supported');
+  console.warn('Push messaging is not supported.');
 }
-
 
 Vue.config.productionTip = false;
 Vue.use(Vuetify);
 
 new Vue({
-  render: h => h(App)
+  render: h => h(App),
 }).$mount('#app');
