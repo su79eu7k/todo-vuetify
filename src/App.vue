@@ -427,8 +427,8 @@
               for (let j = 0; j < this.list[i].notifications.length; j++) {
                 let timeRemaining = (this.list[i].pickedDue - (this.list[i].notifications[j].notificationNumber * this.list[i].notifications[j].notificationMetric)) * 1e3 - new Date();
 
-                if (timeRemaining <= 10e3 && !this.list[i].notifications[j].notified) {
-                  this.$http.post('/push', {body: JSON.stringify(this.subscription)})
+                if (timeRemaining <= 30e3 && !this.list[i].notifications[j].notified) {
+                  this.$http.post('/api/push', {body: this.subscription})
                     .then((res) => {
                       if (res.data === 'OK') { this.list[i].notifications[j].notified = true }
                     })

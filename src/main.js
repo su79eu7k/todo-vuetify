@@ -50,13 +50,13 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
 
             Vue.prototype.$eventHub.$emit('subscription', subscription)
           } else {
-            const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
             swRegistration.pushManager.subscribe({
               userVisibleOnly: true,
-              applicationServerKey: applicationServerKey
+              applicationServerKey: urlB64ToUint8Array(applicationServerPublicKey),
             })
               .then(function(subscription) {
                 console.log('Just subscribed:', subscription);
+                console.log(JSON.stringify(subscription));
 
                 Vue.prototype.$eventHub.$emit('subscription', subscription);
 
@@ -67,8 +67,8 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
               });
           }
         })
-        .catch(function(error) {
-          console.error('Service Worker Error.', error);
+        .catch(function(err) {
+          console.error('Service Worker Error.', err);
         });
     })
 } else {

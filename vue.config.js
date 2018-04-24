@@ -4,6 +4,14 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const WorkboxPlugin = require('workbox-webpack-plugin');
 
 module.exports = {
+  devServer: {
+    proxy: {
+      "/api/*": {
+        target: "http://127.0.0.1:3000",
+        secure: false
+      }
+    }
+  },
   configureWebpack: {
     plugins: [
       new CleanWebpackPlugin(['dist']),
