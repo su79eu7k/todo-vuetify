@@ -29,11 +29,6 @@ function urlB64ToUint8Array(base64String) {
   return outputArray;
 }
 
-function updateSubscriptionOnServer(subscription) {
-  // TODO: Send subscription to application server
-  console.log(subscription)
-}
-
 
 if ('serviceWorker' in navigator && 'PushManager' in window) {
   navigator.serviceWorker.register('/service-worker.js')
@@ -56,7 +51,7 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
             })
               .then(function(subscription) {
                 console.log('Just subscribed:', subscription);
-                console.log(JSON.stringify(subscription));
+                // console.log(JSON.stringify(subscription));
 
                 Vue.prototype.$eventHub.$emit('subscription', subscription);
 

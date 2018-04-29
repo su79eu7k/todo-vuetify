@@ -377,7 +377,6 @@
           this.pickedNotificationMetric = null;
 
           this.$set(this.list, idx, item);
-          // this.list[idx].notifications = item.notifications  // This is wrong!
         } else {
           this.alertNumberMetric = true;
           setTimeout(() => { this.alertNumberMetric = false }, 3e3);
@@ -387,7 +386,6 @@
         item.notifications.splice(idx_sub, 1);
 
         this.$set(this.list, idx_main, item);
-        // this.list[idx_main].notifications = item.notifications  // This is wrong!
       },
       openDialog: function (item, idx) {
         item.dialog = true;
@@ -428,9 +426,10 @@
                 let timeRemaining = (this.list[i].pickedDue - (this.list[i].notifications[j].notificationNumber * this.list[i].notifications[j].notificationMetric)) * 1e3 - new Date();
 
                 if (timeRemaining <= 30e3 && !this.list[i].notifications[j].notified) {
-                  this.$http.post('/api/push', {body: this.subscription})
+                  this.$http.post('/api/push', {subscription: this.subscription})
                     .then((res) => {
-                      if (res.data === 'OK') { this.list[i].notifications[j].notified = true }
+                      // console.log(res);
+                      if (res.data === 'PUSH OK') { this.list[i].notifications[j].notified = true }
                     })
                 }
               }
