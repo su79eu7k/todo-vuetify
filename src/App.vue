@@ -125,7 +125,7 @@
               <transition-group name="slide-fade" tag="v-flex">
                 <v-layout v-for="(item, index) in list" :key="item.id">
                   <v-flex xs12 sm12 md12>
-                    <v-list-tile :key="item.id" @click="toggleFinished(item, index)">
+                    <v-list-tile :key="item.id" @click="toggleFinished(item, index)" ripple>
                       <v-list-tile-avatar>
                         <v-icon v-if="item.finished">done</v-icon>
                         <v-icon v-else>directions_run</v-icon>
