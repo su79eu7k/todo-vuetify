@@ -6,17 +6,17 @@
         <v-flex xs12 sm10 md6>
           <v-card class="elevation-3">
             <v-toolbar height="64px" dark color="primary">
-              <v-toolbar-title>#Todo</v-toolbar-title>
+              <v-toolbar-title>Todo</v-toolbar-title>
 
               <v-spacer></v-spacer>
 
               <v-toolbar-items class="align-center">
-                <v-icon class="pr-2">watch</v-icon>
+                <v-icon class="pr-2">schedule</v-icon>
                 <v-switch v-model="addDue" hide-details></v-switch>
               </v-toolbar-items>
 
               <v-toolbar-items class="align-center">
-                <v-icon class="pr-2 pl-3">folder</v-icon>
+                <v-icon class="pr-2 pl-3">info_outline</v-icon>
                 <v-switch v-model="addDetail" hide-details></v-switch>
               </v-toolbar-items>
             </v-toolbar>
@@ -128,17 +128,17 @@
                     <v-list-tile :key="item.id" @click="toggleFinished(item, index)">
                       <v-list-tile-avatar>
                         <v-icon v-if="item.finished">done</v-icon>
-                        <v-icon v-else>airline_seat_recline_normal</v-icon>
+                        <v-icon v-else>directions_run</v-icon>
                       </v-list-tile-avatar>
 
                       <v-list-tile-content :class="{ 'closed-issue': item.finished }">
-                        <v-list-tile-title>{{ item.title }}<span v-if="item.dueRemaining"> {{ item.dueRemaining }}</span></v-list-tile-title>
+                        <v-list-tile-title>{{ item.title }}<span v-if="item.dueRemaining" class="caption grey--text ml-3">{{ item.dueRemaining }}</span></v-list-tile-title>
                         <v-list-tile-sub-title v-if="item.detail">{{ item.detail }}</v-list-tile-sub-title>
                       </v-list-tile-content>
 
                       <v-list-tile-action>
                         <v-tooltip left v-if="item.pickedDue">
-                          <v-icon slot="activator" color="primary" @click.stop="openDialog(item, index)">watch</v-icon>
+                          <v-icon slot="activator" color="primary" @click.stop="openDialog(item, index)">schedule</v-icon>
                           <span>{{ formatTime("LLL", item.pickedDue) }}</span>
 
                           <v-dialog persistent v-model="item.dialog" max-width="500px">
@@ -148,7 +148,7 @@
                               </v-card-title>
 
                               <v-card-text>
-                                <v-icon class="pr-2">watch</v-icon><span>{{ formatTime("LLLL", item.pickedDue) }}</span>
+                                <v-icon class="pr-2">schedule</v-icon><span>{{ formatTime("LLLL", item.pickedDue) }}</span>
                               </v-card-text>
 
                               <v-card-title class="title">
@@ -199,12 +199,10 @@
                           </v-dialog>
                         </v-tooltip>
 
-                        <v-icon v-if="item.detail" @click.stop="toggleShowDetail(item, index)" color="primary">
-                          {{ !item.showDetail ? 'folder' : 'folder_open' }}
-                        </v-icon>
+                        <v-icon v-if="item.detail" @click.stop="toggleShowDetail(item, index)" color="primary">info_outline</v-icon>
                       </v-list-tile-action>
                       <v-list-tile-action>
-                        <v-icon medium @click.stop="removeItem(item, index)">remove</v-icon>
+                        <v-icon medium @click.stop="removeItem(item, index)" class="headline">close</v-icon>
                       </v-list-tile-action>
                     </v-list-tile>
 
@@ -288,7 +286,8 @@
     watch: {
       list: function() {
         localStorage.setItem('vue-app-todo-F9DM348E', JSON.stringify(this.list));
-      }
+      },
+      deep: true
     },
     mounted: function() {
       if (localStorage.getItem('vue-app-todo-F9DM348E')) this.list = JSON.parse(localStorage.getItem('vue-app-todo-F9DM348E'));
