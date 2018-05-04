@@ -6,7 +6,7 @@
         <v-flex xs12 sm10 md6>
           <v-card class="elevation-3">
             <v-toolbar height="64px" dark color="primary">
-              <v-toolbar-title>Todo</v-toolbar-title>
+              <v-toolbar-title>Vue.js PWA tutorial</v-toolbar-title>
 
               <v-spacer></v-spacer>
 
@@ -425,9 +425,12 @@
                 let timeRemaining = (this.list[i].pickedDue - (this.list[i].notifications[j].notificationNumber * this.list[i].notifications[j].notificationMetric)) * 1e3 - new Date();
 
                 if (timeRemaining <= 30e3 && !this.list[i].notifications[j].notified) {
-                  this.$http.post('/api/push', {subscription: this.subscription})
+                  this.$http.post('/api/push', {
+                    subscription: this.subscription,
+                    payload: this.list[i].title + ' (' + moment(this.list[i].pickedDue * 1e3).fromNow() + ')',
+                  })
                     .then((res) => {
-                      // console.log(res);
+                      console.log(res);
                       if (res.data === 'PUSH OK') { this.list[i].notifications[j].notified = true }
                     })
                 }
