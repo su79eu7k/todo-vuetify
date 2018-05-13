@@ -284,14 +284,15 @@
       },
     },
     watch: {
-      list: function() {
-        localStorage.setItem('vue-app-todo-F9DM348E', JSON.stringify(this.list));
-      },
-      deep: true
+      list: {
+        handler: function (val, oldVal) {
+          localStorage.setItem('vue-app-todo-F9DM348E', JSON.stringify(val))
+        },
+        deep: true
+      }
     },
     mounted: function() {
       if (localStorage.getItem('vue-app-todo-F9DM348E')) this.list = JSON.parse(localStorage.getItem('vue-app-todo-F9DM348E'));
-      const msg = 'You have ' + this.list.length + ' item(s) to do!';
 
       this.checkDueRemaining();
       this.checkNotificationRemaining();
@@ -430,7 +431,6 @@
                     payload: this.list[i].title + ' (' + moment(this.list[i].pickedDue * 1e3).fromNow() + ')',
                   })
                     .then((res) => {
-                      console.log(res);
                       if (res.data === 'PUSH OK') { this.list[i].notifications[j].notified = true }
                     })
                 }

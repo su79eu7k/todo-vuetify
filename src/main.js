@@ -33,38 +33,60 @@ function urlB64ToUint8Array(base64String) {
 if ('serviceWorker' in navigator && 'PushManager' in window) {
   navigator.serviceWorker.register('/service-worker.js')
     .then(function(swReg) {
-      let swRegistration = swReg;
+      let swState;
 
-      swRegistration.pushManager.getSubscription()
-        .then(function(subscription) {
-          let isSubscribed = !(subscription === null);
+      if (swReg.installing) {
+        swState = swReg.installing;
+      } else if (swReg.waiting) {
+        swState = swReg.waiting;
+      } else if (swReg.active) {
+        swState = swReg.active;
+      }
 
-          if (isSubscribed) {
-            console.log('Already subscribed.');
-            console.log(JSON.stringify(subscription));
 
-            Vue.prototype.$eventHub.$emit('subscription', subscription)
-          } else {
-            swRegistration.pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: urlB64ToUint8Array(applicationServerPublicKey),
-            })
-              .then(function(subscription) {
-                console.log('Just subscribed:', subscription);
-                // console.log(JSON.stringify(subscription));
+      function foo(swRegistration) {
+        swRegistration.pushManager.getSubscription()
+          .then(function(subscription) {
+            let isSubscribed = !(subscription === null);
 
-                Vue.prototype.$eventHub.$emit('subscription', subscription);
+            if (isSubscribed) {
+              console.log('Already subscribed.');
+              // console.log(JSON.stringify(subscription));
 
-                isSubscribed = true;
+              Vue.prototype.$eventHub.$emit('subscription', subscription)
+            } else {
+              swRegistration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlB64ToUint8Array(applicationServerPublicKey),
               })
-              .catch(function(err) {
-                console.log('Subscription failed: ', err);
-              });
-          }
-        })
-        .catch(function(err) {
-          console.error('Service Worker Error.', err);
-        });
+                .then(function(subscription) {
+                  console.log('Just subscribed:', subscription);
+                  // console.log(JSON.stringify(subscription));
+
+                  Vue.prototype.$eventHub.$emit('subscription', subscription);
+
+                  isSubscribed = true;
+                })
+                .catch(function(err) {
+                  console.log('Subscription failed: ', err);
+                });
+            }
+          })
+          .catch(function(err) {
+            console.error('Service Worker Error.', err);
+          });
+      }
+
+
+      if (swState.state == 'activated') {
+        foo(swReg)
+      }
+      swState.addEventListener("statechange", function(e) {
+        if (e.target.state == "activated") {
+          foo(swReg)
+        }
+      });
+
     })
 } else {
   console.warn('Push messaging is not supported.');
